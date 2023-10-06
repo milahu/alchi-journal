@@ -2,6 +2,8 @@
 
 cd "$(dirname "$0")"
 
+mkdir -p html
+
 find img/ -mindepth 1 -maxdepth 1 -type d -regextype posix-extended -regex 'img/[0-9]{4}-[0-9]{2}' -printf '%P\n' |
 sort |
 while read month
@@ -22,7 +24,7 @@ do
     done
   ) >$month.md
 
-  echo writing $month.html
+  echo writing html/$month.html
 
   (
     printf '<h1>%s</h1>\n\n' "$month"
@@ -33,9 +35,9 @@ do
     do
       n=${f##*/}
       printf '<h2>%s</h2>\n\n' "$n"
-      printf '<img src="%s">\n\n' "$f"
+      printf '<img src="../%s">\n\n' "$f"
     done
-  ) >$month.html
+  ) >html/$month.html
 
 done
 
@@ -47,7 +49,7 @@ echo writing index.html
   while read month
   do
 
-    printf '<p><a href="%s.html">%s</a></p>\n\n' "$month" "$month"
+    printf '<p><a href="html/%s.html">%s</a></p>\n\n' "$month" "$month"
 
   done
 ) >index.html
