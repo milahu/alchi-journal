@@ -18,7 +18,7 @@ keep_tempfile=true # debug
 keep_tempfile=false
 
 write_logfile=true # debug
-write_logfile=false
+#write_logfile=false
 
 
 
@@ -28,13 +28,18 @@ if ((output_user_uid != this_user_uid)) || ((output_user_gid != this_user_gid));
   do_chown=true
 fi
 
+# TODO dynamic. use "lsusb" to find the scanner device
 # sudo scanimage -L
 # $ sudo scanimage -L 
 # device `brother5:bus1;dev3' is a Brother ADS-3000N USB scanner
 # note: "dev3" does not correspond with output of lsusb
 # $ lsusb | grep ADS-3000N
 # Bus 001 Device 073: ID 04f9:03b8 Brother Industries, Ltd ADS-3000N
+# $ sudo scanimage -L 
+# device `brother4:bus4;dev1' is a Brother ADS-3000N USB scanner
+# device `brother5:bus1;dev4' is a Brother ADS-3000N USB scanner
 device_name="brother5:bus1;dev3"
+device_name="brother5:bus1;dev4"
 
 # sudo scanimage --device-name="$device_name" --help
 #source="Flatbed"
@@ -213,6 +218,9 @@ do
   large_convert_options=("${shared_convert_options[@]}");
   webp_small="$(basename "$temp_path" .$format).webp";
   webp_large="large/$(basename "$temp_path" .$format).large.webp";
+  # note: convert already uses multiple cpu cores
+  # so dont run convert in parallel, or set MAGICK_THREAD_LIMIT=1
+  # https://superuser.com/questions/316365/parallel-processing-slower-than-sequential
   set -x;
   echo "writing $webp_large"
   convert "$temp_path" "${large_convert_options[@]}" "$webp_large";
@@ -357,6 +365,9 @@ while read temp_path <&3; do
   default_title="$(basename "$temp_path")"
   # remove extension
   default_title="${default_title%.*}"
+  # remove the "scan." prefix
+  # move-images.sh expects filenames like 2023-11-25.06-00.some-name
+  default_title="${default_title#scan.}"
 
   if [ -n "$last_title" ]; then
     # re-use the datetime of the last title
