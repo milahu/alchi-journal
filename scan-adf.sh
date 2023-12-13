@@ -40,6 +40,15 @@ fi
 # device `brother5:bus1;dev4' is a Brother ADS-3000N USB scanner
 device_name="brother5:bus1;dev3"
 device_name="brother5:bus1;dev4"
+device_name="brother5:bus2;dev2" # Bus 002 Device 020: ID 04f9:03b8 Brother Industries, Ltd ADS-3000N
+device_name="$1"
+shift
+if [ -z "$device_name" ]; then
+  echo "error: missing argument: device_name" >&2
+  echo "example use: $0 brother5:bus2;dev2" >&2
+  echo "hint: use this to get the device name: scanimage -L" >&2
+  exit 1
+fi
 
 # sudo scanimage --device-name="$device_name" --help
 #source="Flatbed"
