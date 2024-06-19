@@ -384,19 +384,33 @@ while read temp_path <&3; do
     default_title=$(echo "$last_title" | sed -E 's/^([0-9]{4}-[0-9]{2}-[0-9]{2}\.[0-9]{2}-[0-9]{2})\..*$/\1/')
   fi
 
-  # ask user for filename
-  read -e -p "please enter the basename: " -i "$default_title" title
+  # retry loop
+  while true; do
 
-  # trim the entered title
-  title="$(echo "$title" | sed -E 's/^[ \t\r]+//; s/[ \t\r]+$//')"
+    # ask user for filename
+    read -e -p "please enter the basename: " -i "$default_title" title
 
-  # remove "\r"
-  # replace whitespace with "."
-  title="$(echo "$title" | sed -E 's/[\r]+//g; s/[ \t]+/./g')"
+    # trim the entered title
+    title="$(echo "$title" | sed -E 's/^[ \t\r]+//; s/[ \t\r]+$//')"
 
-  if [ -z "$title" ]; then
-    title="$default_title"
-  fi
+    # remove "\r"
+    # replace whitespace with "."
+    title="$(echo "$title" | sed -E 's/[\r]+//g; s/[ \t]+/./g')"
+
+    if [ -z "$title" ]; then
+      title="$default_title"
+    fi
+
+    # hard limit: 255 bytes
+    # 255 - len(".large") = 249
+    title_len_max=240
+
+    [ ${#title} -lt $title_len_max ] && break
+
+    echo "error: title is too long. ${#title} versus $title_len_max. please use a shorter title"
+    default_title="$title"
+
+  done
 
   echo "using basename: ${title@Q}"
 
