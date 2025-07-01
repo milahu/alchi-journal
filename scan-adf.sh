@@ -104,7 +104,7 @@ for pnm in /run/user/1000/scan-calibration.*.pnm; do
   png=$d1/$d2/$np.png;
   mkdir -p $(dirname $png);
   echo writing $png;
-  convert $pnm $png;
+  magick $pnm $png;
 done
 fi
 
@@ -232,9 +232,9 @@ do
   # https://superuser.com/questions/316365/parallel-processing-slower-than-sequential
   set -x;
   echo "writing $webp_large"
-  convert "$temp_path" "${large_convert_options[@]}" "$webp_large";
+  magick "$temp_path" "${large_convert_options[@]}" "$webp_large";
   echo "writing $webp_small"
-  convert "$temp_path" "${small_convert_options[@]}" "$webp_small";
+  magick "$temp_path" "${small_convert_options[@]}" "$webp_small";
   set +x;
 done
 fi
@@ -437,7 +437,7 @@ while read temp_path <&3; do
   echo creating "$o"
 
   convert_args_large=(
-    convert
+    magick
     "$temp_path"
     "${extra_convert_options[@]}"
     "${shared_convert_options[@]}"
@@ -454,7 +454,7 @@ while read temp_path <&3; do
   echo creating "$o_small"
 
   convert_args_small=(
-    convert
+    magick
     "$temp_path"
     "${extra_convert_options[@]}"
     "${shared_convert_options[@]}"
