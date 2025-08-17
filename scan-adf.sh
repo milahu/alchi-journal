@@ -405,6 +405,15 @@ while read temp_path <&3; do
     # 255 - len(".large") = 249
     title_len_max=240
 
+    ask_again=false
+    for o in "$title.webp" "large/$title.large.webp"; do
+      if [ -e "$o" ]; then
+        echo "error: output file exists: $o"
+        ask_again=true
+      fi
+    done
+    $ask_again && continue # ask again
+
     [ ${#title} -lt $title_len_max ] && break
 
     echo "error: title is too long. ${#title} versus $title_len_max. please use a shorter title"
