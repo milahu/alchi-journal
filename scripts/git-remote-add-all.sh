@@ -50,7 +50,7 @@ git_remote_add gitlab.com https://gitlab.com/$username/$repo_name
 
 git_remote_add codeberg.org https://codeberg.org/$username/$repo_name
 
-git_remote_add sourceforge.net https://git.code.sourceforge.net/p/$username-$repo_name/code
+# git_remote_add sourceforge.net https://git.code.sourceforge.net/p/$username-$repo_name/code
 
 git_remote_add notabug.org https://notabug.org/$username/$repo_name
 
@@ -61,3 +61,10 @@ git_remote_add sr.ht git@git.sr.ht:~$username/$repo_name
 git_remote_add darktea.onion http://it7otdanqu7ktntxzm427cba6i53w6wlanlh23v5i3siqmos47pzhvyd.onion/$username/$repo_name
 
 git_remote_add righttoprivacy.onion http://gg6zxtreajiijztyy5g6bt5o6l3qu32nrg7eulyemlhxwwl6enk6ghad.onion/$username/$repo_name
+
+owner=$username
+repo=$repo_name
+
+git_remote_add darkforest.onion http://git.dkforestseeaaq2dqz2uflmlsybvnq2irzn4ygyvu53oazyorednviid.onion/$owner/$repo
+
+git_remote_add gdatura.onion http://gdatura24gtdy23lxd7ht3xzx6mi7mdlkabpvuefhrjn4t5jduviw5ad.onion/$owner/$repo
