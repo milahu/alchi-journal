@@ -8,7 +8,7 @@ shopt -s nullglob
 
 ./generate-index-files.sh
 
-git add img/*/*.webp
+git add img/*/*.avif
 git add html/????-??.html
 git add index.html || true
 git add ????-??.md

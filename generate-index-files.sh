@@ -14,7 +14,7 @@ do
   (
     printf '# %s\n\n' "$month"
 
-    find img/$month/ -maxdepth 1 -name "$month-*.webp" |
+    find img/$month/ -maxdepth 1 '(' -name "$month-*.webp" -or -name "$month-*.avif" ')' |
     sort |
     while read f
     do
@@ -29,7 +29,7 @@ do
   (
     printf '<h1>%s</h1>\n\n' "$month"
 
-    find img/$month/ -maxdepth 1 -name "$month-*.webp" |
+    find img/$month/ -maxdepth 1 '(' -name "$month-*.webp" -or -name "$month-*.avif" ')' |
     sort |
     while read f
     do

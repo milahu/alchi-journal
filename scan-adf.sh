@@ -4,6 +4,14 @@
 # single pass duplex scanning of multiple pages (ADF)
 # with Brother ADS-3000N scanner
 
+# TODO prevent focus-stealing from the "feh" image viewer
+# on KDE plasma:
+# feh window title bar -> rightclick -> more actions ->
+# configure special application settings ->
+# add property -> focus stealing prevention -> add ->
+# change from "none" to "high"
+
+# set -x # debug
 
 
 this_user_uid=$(id --user)
@@ -18,7 +26,7 @@ keep_tempfile=true # debug
 keep_tempfile=false
 
 write_logfile=true # debug
-#write_logfile=false
+write_logfile=false
 
 
 
@@ -74,7 +82,7 @@ extra_options=(--MultifeedDetection=yes --SkipBlankPage=no -x 210 -y 297)
 
 
 
-quality=80
+quality=40%
 
 small_scale=50%
 
@@ -110,16 +118,6 @@ fi
 
 
 
-# https://imagemagick.org/script/webp.php
-# these produce large output:
-# -define webp:alpha-compression=0
-# -define webp:exact=true
-# thresholds can produce ugly transparent output. example: scan.2023-10-03.10-31-42.1.webp
-#   -black-threshold $bth% -white-threshold $wth%
-#   -black-threshold "${lowthresh}%" -white-threshold "${highthresh}%"
-# level should be enough:
-#   -level ${lowthresh}x${highthresh}%
-
 # contrast: increase contrast to remove noise in document scans
 # https://superuser.com/questions/622950/is-there-a-way-to-increase-the-contrast-of-a-pdf-that-was-created-by-scanning-a
 # http://www.fmwconcepts.com/imagemagick/thresholds/index.php # -t soft -l 25 -h 75
@@ -153,9 +151,6 @@ shared_convert_options=(
   -set colorspace RGB
   +profile '*'
   -quality $quality
-  -define webp:lossless=false
-  -define webp:auto-filter=true
-  -define webp:image-hint=graph
   # "+repage" required for webp output with "-crop"
   # "+0+0" is required for "-crop" otherwise it produces multiple images
   #   or an animated webp image with multiple frames
@@ -210,31 +205,26 @@ do
   small_scale=50%;
   extra_convert_options=()
   #extra_convert_options=(-rotate 90)
-  # https://imagemagick.org/script/webp.php
-  # these produce large output:
-  # -define webp:alpha-compression=0
-  # -define webp:exact=true
   # thresholds can produce ugly transparent output. example: scan.2023-10-03.10-31-42.1.webp
   #   -black-threshold $bth% -white-threshold $wth%
   # level should be enough:
   #   -level $bth"x"$wth%
   shared_convert_options=("${extra_convert_options[@]}"
     -set colorspace RGB +profile '*' -quality $quality
-    -define webp:lossless=false
-    -define webp:auto-filter=true -define webp:image-hint=graph);
+  );
   small_convert_options=("${shared_convert_options[@]}"
     -scale $small_scale -level $bth"x"$wth%);
   large_convert_options=("${shared_convert_options[@]}");
-  webp_small="$(basename "$temp_path" .$format).webp";
-  webp_large="large/$(basename "$temp_path" .$format).large.webp";
+  out_small="$(basename "$temp_path" .$format).avif";
+  out_large="large/$(basename "$temp_path" .$format).large.avif";
   # note: convert already uses multiple cpu cores
   # so dont run convert in parallel, or set MAGICK_THREAD_LIMIT=1
   # https://superuser.com/questions/316365/parallel-processing-slower-than-sequential
   set -x;
-  echo "writing $webp_large"
-  magick "$temp_path" "${large_convert_options[@]}" "$webp_large";
-  echo "writing $webp_small"
-  magick "$temp_path" "${small_convert_options[@]}" "$webp_small";
+  echo "writing $out_large"
+  magick "$temp_path" "${large_convert_options[@]}" "$out_large";
+  echo "writing $out_small"
+  magick "$temp_path" "${small_convert_options[@]}" "$out_small";
   set +x;
 done
 fi
@@ -406,7 +396,7 @@ while read temp_path <&3; do
     title_len_max=240
 
     ask_again=false
-    for o in "$title.webp" "large/$title.large.webp"; do
+    for o in "$title.avif" "large/$title.large.avif"; do
       if [ -e "$o" ]; then
         echo "error: output file exists: $o"
         ask_again=true
@@ -439,7 +429,7 @@ while read temp_path <&3; do
 
   # convert large
 
-  o="large/$title.large.webp"
+  o="large/$title.large.avif"
 
   [ -d large ] || mkdir -p large
 
@@ -458,7 +448,7 @@ while read temp_path <&3; do
 
   # convert small
 
-  o_small="$title.webp"
+  o_small="$title.avif"
 
   echo creating "$o_small"
 
@@ -542,9 +532,11 @@ done 3< <(
   printf "%q " "${scanimage_args[@]}" >&2; echo >&2
 
   if $write_logfile; then
+    echo "writing logfile $scanimage_log_path" >&2
     "${scanimage_args[@]}" 2>"$scanimage_log_path"
   else
-    "${scanimage_args[@]}" 2>/dev/null
+    "${scanimage_args[@]}" \
+      2> >(grep -v -E "^(Scanning page|Scanned page|scanimage: sane_read: Document feeder out of documents|Batch terminated)" >&2)
   fi
 
 )
