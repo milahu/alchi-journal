@@ -34,7 +34,8 @@ do
     while read f
     do
       n=${f##*/}
-      printf '<h2>%s</h2>\n\n' "$n"
+      i=${n// /-}
+      printf '<h2 id="%s"><a href="#%s">%s</a></h2>\n\n' "$i" "$i" "$n"
       printf '<img src="../%s">\n\n' "$f"
     done
   ) >html/$month.html
