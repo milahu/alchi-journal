@@ -402,7 +402,10 @@ while read temp_path <&3; do
         ask_again=true
       fi
     done
-    $ask_again && continue # ask again
+    if $ask_again; then
+      default_title="$title"
+      continue # ask again
+    fi
 
     [ ${#title} -lt $title_len_max ] && break
 
