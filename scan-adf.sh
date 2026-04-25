@@ -61,6 +61,7 @@ fi
 # sudo scanimage --device-name="$device_name" --help
 #source="Flatbed"
 source="Automatic Document Feeder(left aligned,Duplex)"
+# source="Automatic Document Feeder(left aligned)" # simplex
 
 # 24bit Color[Fast]
 # Black & White
@@ -88,6 +89,7 @@ small_scale=50%
 
 # 15 MByte png file
 resolution=300
+# resolution=600
 
 
 if [[ "$(id -u)" != "0" ]]; then
@@ -144,7 +146,14 @@ highthresh=98
 
 # my document scanner adds a white bar below the scanned image. remove it by cropping
 # input size: 2480x3508
-crop_x=2480; crop_y=3342 # resolution=300
+if [ $resolution = 300 ]; then
+  crop_x=2480; crop_y=3342 # resolution=300
+elif [ $resolution = 600 ]; then
+  crop_x=$((2480 * 2)); crop_y=$((3342 * 2)) # resolution=600
+else
+  echo "error: bad resolution $resolution"
+  exit 1
+fi
 
 shared_convert_options=(
   "${extra_convert_options[@]}"
